@@ -104,6 +104,7 @@ class OnlineTV{
         this.selectPage();
         this.showMore();
         this.clickShowFilm();
+        this.searchByName();
     }
     constructor() {
         this.start();
@@ -140,7 +141,7 @@ class OnlineTV{
                     <span class="rating">${f.rating}</span>
                     <div class="options-wrap">
                         <ul  class="options">
-                            <li class="name">${f.nameRu}</li>
+                            <li class="name">${f?.nameRu || f?.nameEn}</li>
                         </ul>
                     </div>
                 </li>`;
@@ -176,6 +177,7 @@ class OnlineTV{
         $(document).on('click', '.show-more span', async e=>{
             let pi = $(document).find('.active[data-page]').data('page');
             let nextPage =  pi < this.pageMaxNum ? pi+1 : pi;
+            if(nextPage === pi) return;
             let list = await this.apiRequest(this.listUrl.lastUrlItem, {...this.listUrl.lastUrlItemParams, page:nextPage});
             this.pageMaxNum = list?.pagesCount || 1;
             let filmsList = list?.films || list?.items;
@@ -201,10 +203,27 @@ class OnlineTV{
 
     setYohoho(id){
         return `
-            <video id="yohoho" data-kinopoisk="${id}" controls>
+            <video data-tv="1" id="yohoho" data-kinopoisk="${id}" controls>
                 <source src="//yohoho.cc/yo.mp4" type="video/mp4">
             </video>
             <script src="//yohoho.cc/yo.js"></script>`;
+    }
+
+    searchByName(){
+        let $f = $('.search-by-name form');
+        $f.on('submit', async e=>{
+            let search_text = $('#sname').val().trim();
+            let list = await this.apiRequest(this.listUrl.searchByWord, {keyword:search_text, page:1});
+            this.pageMaxNum = list?.pagesCount || 1;
+            let filmsList = list?.films || list?.items;
+            $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
+
+            $('.pagination').remove();
+            $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
+            $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
+
+            e.preventDefault();
+        })
     }
 }
 $(()=>{
