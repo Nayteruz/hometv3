@@ -1,82 +1,3 @@
-
-//document.addEventListener('DOMContentLoaded', getFilms);
-
-async function getFilms(){
-
-
-
-    let requestList = await ftch();
-
-    $('.list-films-wrap').append(setList(requestList?.films || requestList?.items));
-
-    async function ftch(){
-        const url = 'https://kinopoiskapiunofficial.tech/';
-        const topFilms = 'api/v2.2/films/top';
-        const similar = 'api/v2.2/films/301/similars';
-        const apiKey = '404dc583-7efc-4c93-8f21-a782f977b9e7';
-        return await fetch(url + topFilms + '?type=TOP_AWAIT_FILMS', {
-            method: 'GET',
-            headers: {
-                'X-API-KEY': apiKey,
-                'Content-Type': 'application/json',
-            }
-        }).then(r=>r.json()).then(r=> {
-            console.log(r)
-            return r;
-        });
-    }
-
-    function setYohoho(id){
-        return `
-        <div class="film-container">
-        <div id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}"></div>
-        <script src="//yohoho.cc/yo.js"></script>
-        `;
-    }
-
-    function setList(list){
-        let $listFilms = `<ul class="films-list">`;
-        for (let f of list){
-            let $li = `<li class="item-film" data-id="${f.filmId}">
-                    <div class="image">
-                        <img src="${f.posterUrl}" alt="${f.nameRu}">
-                    </div>
-                    <div class="name">${f.nameRu}</div>
-                    <ul class="genres">
-                        ${'000'}
-                    </ul>
-                </li>`;
-            $listFilms += $li;
-        }
-        $listFilms += '</ul>';
-        return $listFilms;
-    }
-    searchByName();
-    async function searchByName(){
-        const urlMain = 'https://kinopoiskapiunofficial.tech/';
-        const url = 'api/v2.1/films/search-by-keyword';
-        const apiKey = '404dc583-7efc-4c93-8f21-a782f977b9e7';
-        return await fetch(urlMain + url + '?keyword=засланец', {
-            method: 'GET',
-            headers: {
-                'X-API-KEY': apiKey,
-                'Content-Type': 'application/json',
-                'type' : 'TOP_AWAIT_FILMS',
-            }
-        }).then(r=>r.json()).then(r=> {
-            console.log(r)
-            return r;
-        });
-    }
-
-
-    $(document).on('click', '.item-film', function (){
-        let $film = setYohoho($(this).data('id'));
-        $('.film-container-wr').html($film);
-    })
-
-}
-
 class OnlineTV{
 
     apiKey = '404dc583-7efc-4c93-8f21-a782f977b9e7';
@@ -221,8 +142,10 @@ class OnlineTV{
 
             $('.pagination').remove();
             this.pageCurrent = 1;
-            $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
-            $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
+            if(this.pageMaxNum > 1) {
+                $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
+                $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
+            }
             $('[data-genre]').removeClass('active');
             $(e.target).addClass('active');
         })
@@ -230,10 +153,9 @@ class OnlineTV{
 
     setYohoho(id){
         return `
-            <video data-tv="1" id="yohoho" data-kinopoisk="${id}" controls>
-                <source src="//yohoho.cc/yo.mp4" type="video/mp4">
-            </video>
-            <script src="//yohoho.cc/yo.js"></script>`;
+            <div id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}"></div>
+            <script src="//yohoho.cc/yo.js"></script>
+            `;
     }
 
     searchByName(){
@@ -246,8 +168,10 @@ class OnlineTV{
             $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
 
             $('.pagination').remove();
-            $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
-            $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
+            if(this.pageMaxNum > 1){
+                $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
+                $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
+            }
 
             e.preventDefault();
         })
