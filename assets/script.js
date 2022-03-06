@@ -82,19 +82,25 @@ class OnlineTV{
     apiKey = '404dc583-7efc-4c93-8f21-a782f977b9e7';
     pageMaxNum = 1;
     pageCurrent = 1;
+    genres = [];
     listUrl = {
         main : 'https://kinopoiskapiunofficial.tech/',
         topFilms : 'api/v2.2/films/top',
         searchByWord : 'api/v2.1/films/search-by-keyword',
         similar : 'api/v2.2/films/301/similars',
+        filters : 'api/v2.2/films/filters',
+        films: 'api/v2.2/films',
         lastUrlItem: '',
         lastUrlItemParams : ''
     }
 
     async start(){
-        let list = await this.apiRequest(this.listUrl.topFilms, {page:1});
+        await this.setGenres();
+        let list = await this.apiRequest(this.listUrl.topFilms, {type: 'TOP_100_POPULAR_FILMS', page:1});
         this.pageMaxNum = list?.pagesCount || 1;
         let filmsList = list?.films || list?.items;
+
+        $(document).find('.genres-wrap').append(this.setGenresHtml(this.genres));
         $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
 
         $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
@@ -103,6 +109,7 @@ class OnlineTV{
         this.showMore();
         this.clickShowFilm();
         this.searchByName();
+        this.clickGenre();
     }
     constructor() {
         this.start();
@@ -125,6 +132,7 @@ class OnlineTV{
                 'Content-Type': 'application/json',
             }
         })
+        $('.list-films-wrap').removeClass('load');
         return request.json();
     }
 
@@ -132,14 +140,15 @@ class OnlineTV{
         if(!list.length) return ;
         let $listFilms = '';
         for (let f of list){
-            let $li = `<li class="item-film" data-id="${f.filmId}">
+            let rating = f?.rating || f?.ratingKinopoisk || 'нет';
+            let $li = `<li class="item-film" data-id="${f?.filmId || f?.kinopoiskId}">
                     <div class="image">
                         <img src="${f.posterUrlPreview}" alt="${f.nameRu}">
                     </div>
-                    <span class="rating">${f.rating}</span>
+                    <span class="rating">${rating == 'null' ? 'нет' : rating}</span>
                     <div class="options-wrap">
                         <ul  class="options">
-                            <li class="name">${f?.nameRu || f?.nameEn}</li>
+                            <li class="name">${f?.nameRu || f?.nameEn || f?.nameOriginal || 'Без названия'}</li>
                         </ul>
                     </div>
                 </li>`;
@@ -161,6 +170,7 @@ class OnlineTV{
         $(document).on('click', '.pagination [data-page]', async e=>{
             let pi = e.target.dataset.page;
             this.pageCurrent = pi;
+            $('.list-films-wrap').addClass('load');
             let list = await this.apiRequest(this.listUrl.lastUrlItem, {...this.listUrl.lastUrlItemParams, page:pi});
             this.pageMaxNum = list?.pagesCount || 1;
             let filmsList = list?.films || list?.items;
@@ -176,8 +186,9 @@ class OnlineTV{
             let pi = $(document).find('.active[data-page]').data('page');
             let nextPage =  pi < this.pageMaxNum ? pi+1 : pi;
             if(nextPage === pi) return;
+            $('.list-films-wrap').addClass('load');
             let list = await this.apiRequest(this.listUrl.lastUrlItem, {...this.listUrl.lastUrlItemParams, page:nextPage});
-            this.pageMaxNum = list?.pagesCount || 1;
+            this.pageMaxNum = list?.pagesCount || list?.totalPages || 1;
             let filmsList = list?.films || list?.items;
             $(document).find('.list-films-wrap .films-list').append(this.setListFilm(filmsList));
             $('.pagination [data-page]').removeClass('active');
@@ -196,6 +207,24 @@ class OnlineTV{
         $(document).on('click', '.close-b', ()=>{
             $('.popup').hide();
             $('.popup-stable-text').html('');
+        })
+    }
+
+    clickGenre(){
+        $(document).on('click', '[data-genre]', async e=>{
+            let genre = e.target.dataset.genre;
+            $('.list-films-wrap').addClass('load');
+            let list = await this.apiRequest(this.listUrl.films, {genres:genre, page:1});
+            this.pageMaxNum = list?.pagesCount || list?.totalPages || 1;
+            let filmsList = list?.films || list?.items;
+            $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
+
+            $('.pagination').remove();
+            this.pageCurrent = 1;
+            $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
+            $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
+            $('[data-genre]').removeClass('active');
+            $(e.target).addClass('active');
         })
     }
 
@@ -222,6 +251,42 @@ class OnlineTV{
 
             e.preventDefault();
         })
+    }
+
+    async setGenres(){
+        let filters = await this.apiRequest(this.listUrl.filters, {});
+        if(filters?.genres){
+            this.genres = filters.genres.filter(x=>{
+                if (
+                    x.genre !== ''
+                    && x.genre !== 'для взрослых'
+                    && x.genre !== 'мюзикл'
+                    && x.genre !== 'спорт'
+                    && x.genre !== 'церемония'
+                    && x.genre !== 'фильм-нуар'
+                    && x.genre !== 'биография'
+                    && x.genre !== 'вестерн'
+                    && x.genre !== 'короткометражка'
+                    && x.genre !== 'документальный'
+                    && x.genre !== 'реальное ТВ'
+                    && x.genre !== 'ток-шоу'
+                    && x.genre !== 'концерт'
+                    && x.genre !== 'игра'
+                ){
+                    return x;
+                }
+            });
+        }
+        return false;
+    }
+
+    setGenresHtml(list){
+        let html = `<ul class="genres">`;
+        for (let g of list){
+            html += `<li class="item"><span class="" data-genre="${g.id}">${g.genre}</span></li>`;
+        }
+        html += `</ul>`;
+        return html;
     }
 }
 $(()=>{
