@@ -20,6 +20,9 @@ body {
 .wrapper {
     padding: 3px 5px;
     font-family: $rb;
+    * {
+        box-sizing: border-box;
+    }
 }
 
 img {
@@ -248,13 +251,9 @@ img {
         display: flex;
         align-items: center;
         gap:5px;
-
         padding: 0;
         margin: 0;
-        @media all and (max-width:480px){
-            width: 100%;
-        }
-
+        width: 100%;
         input, button {
             outline: none;
             background: #bedaed;
@@ -271,6 +270,9 @@ img {
             &::placeholder {
                 color:#333;
             }
+        }
+        input {
+            width: 100%;
         }
         button {
             width: 80px;
