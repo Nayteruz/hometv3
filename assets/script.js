@@ -29,9 +29,7 @@ async function getFilms(){
     function setYohoho(id){
         return `
         <div class="film-container">
-        <video id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}" controls>
-          <source src="//yohoho.cc/yo.mp4" type="video/mp4">
-        </video>
+        <div id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}"></div>
         <script src="//yohoho.cc/yo.js"></script>
         `;
     }
