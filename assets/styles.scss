@@ -82,6 +82,13 @@ img {
         display: flex;
         flex-direction: column;
         position: relative;
+
+        &.no-films {
+            color: #fff;
+            font-size: 18px;
+            font-weight:bold;
+        }
+
         .image {
             font-size: 0;
             line-height: 0;
@@ -89,6 +96,7 @@ img {
             overflow: hidden;
             border-radius: 10px;
             flex:1 1 auto;
+            max-height: 400px;
             img {
                 object-fit: cover;
                 width: 100%;

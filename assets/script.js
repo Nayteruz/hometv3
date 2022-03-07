@@ -1,9 +1,12 @@
 class OnlineTV{
 
-    apiKey = '404dc583-7efc-4c93-8f21-a782f977b9e7';
     pageMaxNum = 1;
-    pageCurrent = 1;
-    genres = [];
+    pageNum = 1;
+    params = {
+        apiKey : '404dc583-7efc-4c93-8f21-a782f977b9e7',
+        genres : [],
+        searchParams : {}
+    };
     listUrl = {
         main : 'https://kinopoiskapiunofficial.tech/',
         topFilms : 'api/v2.2/films/top',
@@ -16,22 +19,27 @@ class OnlineTV{
     }
 
     async start(){
+        this.pageNum = +this.getURLParams()?.page || 1;
+        this.getURLParams();
+        this.searchByName();
         await this.setGenres();
-        let list = await this.apiRequest(this.listUrl.topFilms, {type: 'TOP_100_POPULAR_FILMS', page:1});
-        this.pageMaxNum = list?.pagesCount || 1;
+        $(document).find('.list-films-wrap').addClass('load');
+        let list = await this.searchByUrlParams(this.getURLParams()?.page || 1);
+        this.pageMaxNum = list?.pagesCount || list?.totalPages || 1;
         let filmsList = list?.films || list?.items;
 
-        $(document).find('.genres-wrap').append(this.setGenresHtml(this.genres));
+        $(document).find('.genres-wrap').html(this.setGenresHtml(this.params.genres));
         $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
 
         $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
         $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
-        this.selectPage();
-        this.showMore();
+
+        this.clickPage();
+        this.clickMore();
         this.clickShowFilm();
-        this.searchByName();
         this.clickGenre();
     }
+
     constructor() {
         this.start();
     }
@@ -49,7 +57,7 @@ class OnlineTV{
         let request = await fetch(u, {
             method: 'GET',
             headers: {
-                'X-API-KEY': this.apiKey,
+                'X-API-KEY': this.params.apiKey,
                 'Content-Type': 'application/json',
             }
         })
@@ -58,7 +66,7 @@ class OnlineTV{
     }
 
     setListFilm(list = []){
-        if(!list.length) return ;
+        if(!list.length) return `<li class="no-films">Ничего не найдено</li>`;
         let $listFilms = '';
         for (let f of list){
             let rating = f?.rating || f?.ratingKinopoisk || 'нет';
@@ -79,41 +87,34 @@ class OnlineTV{
     }
 
     setPagination(max){
+        let page = this.getURLParams().page || 1;
         let html = `<ul class="pagination">`;
-        for (let p = 1; p<=max; p++){
-            html += `<li class="item"><span class="${p === this.pageCurrent ? 'active' : ''}" data-page="${p}">${p}</span></li>`;
+        if(max > 1){
+            for (let p = 1; p<=max; p++){
+                html += `<li class="item"><span class="${+page === +p ? 'active' : ''}" data-page="${p}">${p}</span></li>`;
+            }
         }
         html += `</ul>`;
         return html;
     }
 
-     selectPage(){
+     clickPage(){
         $(document).on('click', '.pagination [data-page]', async e=>{
-            let pi = e.target.dataset.page;
-            this.pageCurrent = pi;
-            $('.list-films-wrap').addClass('load');
-            let list = await this.apiRequest(this.listUrl.lastUrlItem, {...this.listUrl.lastUrlItemParams, page:pi});
-            this.pageMaxNum = list?.pagesCount || 1;
-            let filmsList = list?.films || list?.items;
-            $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
-            $('.pagination [data-page]').removeClass('active');
-            $(e.target).addClass('active');
-
+            let page = e.target.dataset.page;
+            document.location.href = this.setURLParams({page});
         })
     }
 
-    async showMore(){
+    async clickMore(){
         $(document).on('click', '.show-more span', async e=>{
-            let pi = $(document).find('.active[data-page]').data('page');
-            let nextPage =  pi < this.pageMaxNum ? pi+1 : pi;
-            if(nextPage === pi) return;
-            $('.list-films-wrap').addClass('load');
-            let list = await this.apiRequest(this.listUrl.lastUrlItem, {...this.listUrl.lastUrlItemParams, page:nextPage});
-            this.pageMaxNum = list?.pagesCount || list?.totalPages || 1;
+            if(this.pageNum >= this.pageMaxNum) return;
+            this.pageNum += 1;
+            $(document).find('.list-films-wrap').addClass('load');
+            let list = await this.searchByUrlParams(this.pageNum);
             let filmsList = list?.films || list?.items;
             $(document).find('.list-films-wrap .films-list').append(this.setListFilm(filmsList));
             $('.pagination [data-page]').removeClass('active');
-            $(`.pagination [data-page="${nextPage}"]`).addClass('active');
+            $(`.pagination [data-page="${this.pageNum}"]`).addClass('active');
         })
     }
 
@@ -133,22 +134,17 @@ class OnlineTV{
 
     clickGenre(){
         $(document).on('click', '[data-genre]', async e=>{
-            let genre = e.target.dataset.genre;
-            $('.list-films-wrap').addClass('load');
-            let list = await this.apiRequest(this.listUrl.films, {genres:genre, page:1});
-            this.pageMaxNum = list?.pagesCount || list?.totalPages || 1;
-            let filmsList = list?.films || list?.items;
-            $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
-
-            $('.pagination').remove();
-            this.pageCurrent = 1;
-            if(this.pageMaxNum > 1) {
-                $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
-                $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
-            }
-            $('[data-genre]').removeClass('active');
-            $(e.target).addClass('active');
+            let genres = e.target.dataset.genre;
+            document.location.href = this.setURLParams({genres, page:1});
         })
+    }
+
+    async searchByUrlParams(page_num = 1){
+        if(this.getURLParams()?.keyword || this.getURLParams()?.genres){
+            return await this.apiRequest(this.listUrl.films, {...this.params.searchParams, page:page_num});
+        } else {
+            return await this.apiRequest(this.listUrl.topFilms, {type: 'TOP_100_POPULAR_FILMS', page:page_num})
+        }
     }
 
     setYohoho(id){
@@ -160,27 +156,42 @@ class OnlineTV{
 
     searchByName(){
         let $f = $('.search-by-name form');
+        if(this.params.searchParams.keyword){
+            $f.find('[name="keyword"]').val(this.params.searchParams.keyword);
+        }
         $f.on('submit', async e=>{
-            let search_text = $('#sname').val().trim();
-            let list = await this.apiRequest(this.listUrl.searchByWord, {keyword:search_text, page:1});
-            this.pageMaxNum = list?.pagesCount || 1;
-            let filmsList = list?.films || list?.items;
-            $(document).find('.list-films-wrap .films-list').html(this.setListFilm(filmsList));
-
-            $('.pagination').remove();
-            if(this.pageMaxNum > 1){
-                $(document).find('.list-films-wrap').before(this.setPagination(this.pageMaxNum));
-                $(document).find('.show-more').after(this.setPagination(this.pageMaxNum));
-            }
-
+            document.location.href = this.setURLParams({keyword : $('#sname').val(), page:1});
             e.preventDefault();
         })
     }
 
+    getURLParams(){
+        let urlParams = new URLSearchParams(document.location.search);
+        let params = {};
+        for (let p of urlParams.entries()){
+            params[p[0]] = p[1];
+        }
+        this.params.searchParams = params;
+        return this.params.searchParams;
+    }
+    setURLParams(params = {}){
+        let mainUrl = new URL(document.location.origin + document.location.pathname);
+        let urlParams = new URLSearchParams(document.location.search);
+        for (let p of Object.entries(params)){
+            urlParams.set(p[0], p[1]);
+        }
+        mainUrl.search = urlParams.toString();
+        return mainUrl.href;
+    }
+
     async setGenres(){
+        if(localStorage.getItem('genres')){
+            this.params.genres = JSON.parse(localStorage.getItem('genres'));
+            return this.params.genres;
+        }
         let filters = await this.apiRequest(this.listUrl.filters, {});
         if(filters?.genres){
-            this.genres = filters.genres.filter(x=>{
+            this.params.genres = filters.genres.filter(x=>{
                 if (
                     x.genre !== ''
                     && x.genre !== 'для взрослых'
@@ -201,13 +212,15 @@ class OnlineTV{
                 }
             });
         }
-        return false;
+        localStorage.setItem('genres', JSON.stringify(this.params.genres));
+        return this.params.genres;
     }
 
     setGenresHtml(list){
+        let genre_id = this.getURLParams().genres || 0;
         let html = `<ul class="genres">`;
         for (let g of list){
-            html += `<li class="item"><span class="" data-genre="${g.id}">${g.genre}</span></li>`;
+            html += `<li class="item"><span class="${+g.id === +genre_id ? 'active' : ''}" data-genre="${g.id}">${g.genre}</span></li>`;
         }
         html += `</ul>`;
         return html;
