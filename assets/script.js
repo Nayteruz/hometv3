@@ -124,11 +124,13 @@ class OnlineTV{
             let fid = $(this).data('id');
             $('.popup').show();
             $('.popup-stable-text').html(cls.setYohoho(fid));
+            $('.popup').fullScreen(true);
         })
         $(document).find('.close-b').unbind();
         $(document).on('click', '.close-b', ()=>{
             $('.popup').hide();
             $('.popup-stable-text').html('');
+            $('.popup').fullScreen(false);
         })
     }
 
@@ -229,3 +231,6 @@ class OnlineTV{
 $(()=>{
     new OnlineTV();
 })
+
+
+!function(e){function l(e){var l,r,c;return this.length?((l=this[0]).ownerDocument?c=l.ownerDocument:l=(c=l).documentElement,null==e?c.exitFullscreen||c.webkitExitFullscreen||c.webkitCancelFullScreen||c.msExitFullscreen||c.mozCancelFullScreen?(e=n(c))&&(c.fullscreenElement||c.webkitFullscreenElement||c.webkitCurrentFullScreenElement||c.msFullscreenElement||c.mozFullScreenElement)||e:null:e?((r=l.requestFullscreen||l.webkitRequestFullscreen||l.webkitRequestFullScreen||l.msRequestFullscreen||l.mozRequestFullScreen)&&r.call(l),this):((r=c.exitFullscreen||c.webkitExitFullscreen||c.webkitCancelFullScreen||c.msExitFullscreen||c.mozCancelFullScreen)&&n(c)&&r.call(c),this)):this}function n(e){return!!(e.fullscreenElement||e.msFullscreenElement||e.webkitIsFullScreen||e.mozFullScreen)}function r(l){e(document).trigger(new e.Event("fullscreenchange"))}function c(l){e(document).trigger(new e.Event("fullscreenerror"))}var u,t,s;e.fn.fullScreen=l,e.fn.toggleFullScreen=function(){return l.call(this,!l.call(this))},(u=document).webkitCancelFullScreen?(t="webkitfullscreenchange",s="webkitfullscreenerror"):u.msExitFullscreen?(t="MSFullscreenChange",s="MSFullscreenError"):u.mozCancelFullScreen?(t="mozfullscreenchange",s="mozfullscreenerror"):(t="fullscreenchange",s="fullscreenerror"),e(document).bind(t,r),e(document).bind(s,c)}(jQuery);
