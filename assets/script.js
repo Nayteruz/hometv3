@@ -159,7 +159,7 @@ class OnlineTV{
         //     <script src="//yohoho.cc/yo.js"></script>
         //     `;
         return `
-            <div id="kinoplayertop" data-kinopoisk="${id}"></div>
+            <div id="kinoplayertop" data-classname="yohoho-class" data-kinopoisk="${id}"></div>
         `;
     }
 

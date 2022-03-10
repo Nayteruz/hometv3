@@ -321,11 +321,11 @@ img {
       .genres-wrap .genres li span:hover, .genres-wrap .genres li span.active {
         background: #79abd4; }
 
-#yohoho, #kinoplayertop {
+#yohoho, #kinoplayertop, .yohoho-class {
   width: 100% !important;
   height: 100% !important;
   padding: 0 !important; }
-  #yohoho iframe, #kinoplayertop iframe {
+  #yohoho iframe, #kinoplayertop iframe, .yohoho-class iframe {
     width: 100% !important;
     height: 100% !important; }
 
