@@ -120,17 +120,21 @@ class OnlineTV{
 
     clickShowFilm(){
         let cls = this;
+        let $popup = $(document).find('.popup');
+        let $container = $('.popup-stable-text');
         $(document).on('click', '.item-film', function (){
             let fid = $(this).data('id');
-            $('.popup').show();
-            $('.popup-stable-text').html(cls.setYohoho(fid));
-            $('.popup').fullScreen(true);
+            $popup.show().fullScreen(true);
+            $container.html(cls.setYohoho(fid));
+            runKinoplayertop();
+            setTimeout(()=>{
+                $('#kinoplayertop').attr('style', '');
+            },200)
         })
         $(document).find('.close-b').unbind();
         $(document).on('click', '.close-b', ()=>{
-            $('.popup').hide();
-            $('.popup-stable-text').html('');
-            $('.popup').fullScreen(false);
+            $container.html('');
+            $popup.hide().fullScreen(false);
         })
     }
 
@@ -150,10 +154,13 @@ class OnlineTV{
     }
 
     setYohoho(id){
+        // return `
+        //     <div id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}"></div>
+        //     <script src="//yohoho.cc/yo.js"></script>
+        //     `;
         return `
-            <div id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}"></div>
-            <script src="//yohoho.cc/yo.js"></script>
-            `;
+            <div id="kinoplayertop" data-kinopoisk="${id}"></div>
+        `;
     }
 
     searchByName(){

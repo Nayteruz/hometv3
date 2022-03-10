@@ -397,10 +397,10 @@ img {
     }
 }
 
-#yohoho {
+#yohoho, #kinoplayertop {
     width: 100% !important;
     height: 100% !important;
-
+    padding: 0 !important;
     iframe {
         width: 100% !important;
         height: 100% !important;
