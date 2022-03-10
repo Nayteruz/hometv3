@@ -82,11 +82,13 @@ img {
         display: flex;
         flex-direction: column;
         position: relative;
-
+        border-radius: 10px;
         &.no-films {
             color: #fff;
             font-size: 18px;
             font-weight:bold;
+            grid-column: 1/5;
+            box-shadow: none;
         }
 
         .image {
@@ -119,6 +121,12 @@ img {
             justify-content: center;
             gap:2px;
             color:#2c5e95;
+            @media all and (max-width:768px){
+                font-size: 11px;
+                top: 0;
+                right: 0;
+            }
+
             &:before {
                 content: "";
                 display: block;
@@ -127,6 +135,10 @@ img {
                 background-image: $star;
                 background-size: 100%;
                 background-repeat: no-repeat;
+                @media all and (max-width:768px){
+                    width: 11px;
+                    height: 13px;
+                }
             }
         }
 
@@ -134,6 +146,11 @@ img {
             .options-wrap {
                 display: flex;
             }
+        }
+    }
+    > li {
+        &:hover {
+            box-shadow: 0 0 10px 6px #5a2dbb;
         }
     }
 }
@@ -148,6 +165,11 @@ img {
     border-radius: 10px;
     align-items: flex-end;
     display: none;
+    @media all and (max-width:768px){
+        display: flex;
+        background:transparent;
+    }
+
 }
 .item-film .options {
     font-family: $rb;
@@ -155,12 +177,20 @@ img {
     padding: 10px;
     margin: 0;
     list-style: none;
+    @media all and(max-width:768px){
+        background: rgba(#000,.6);
+        border-radius: 0 0 10px 10px;
+    }
 
     li {
         &.name {
             font-weight: bold;
             font-size: 18px;
             color: #fff;
+            @media all and (max-width:768px){
+                font-size: 12px;
+            }
+
         }
     }
 }
