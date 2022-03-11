@@ -165,7 +165,7 @@ img {
     border-radius: 10px;
     align-items: flex-end;
     display: none;
-    @media all and (max-width:768px){
+    @media all and (max-width:1024px){
         display: flex;
         background:transparent;
     }
@@ -177,20 +177,25 @@ img {
     padding: 10px;
     margin: 0;
     list-style: none;
-    @media all and(max-width:768px){
+    @media all and(max-width:1024px){
         background: rgba(#000,.6);
         border-radius: 0 0 10px 10px;
     }
 
     li {
+        color: #fff;
         &.name {
             font-weight: bold;
             font-size: 18px;
-            color: #fff;
             @media all and (max-width:768px){
                 font-size: 12px;
             }
-
+        }
+        &.year {
+            font-size: 14px;
+            @media all and (max-width:768px){
+                font-size: 10px;
+            }
         }
     }
 }
@@ -250,6 +255,28 @@ img {
                 color: #fff;
             }
         }
+    }
+}
+
+.hosting {
+    display: flex;
+    align-items: center;
+    font-family: $rb;
+    gap:5px;
+    margin:5px 0;
+    span {
+        display: block;
+        color: #fff;
+    }
+    select {
+        border-radius: 5px;
+        border:2px solid #a6d6f7;
+        background: #a6d6f7;
+        color: #3a6891;
+        font-size: 14px;
+        outline: none;
+        height: 32px;
+        padding: 3px 5px;
     }
 }
 

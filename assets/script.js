@@ -78,6 +78,7 @@ class OnlineTV{
                     <div class="options-wrap">
                         <ul  class="options">
                             <li class="name">${f?.nameRu || f?.nameEn || f?.nameOriginal || 'Без названия'}</li>
+                            <li class="year">${f.year} г.</li>
                         </ul>
                     </div>
                 </li>`;
@@ -124,12 +125,15 @@ class OnlineTV{
         let $container = $('.popup-stable-text');
         $(document).on('click', '.item-film', function (){
             let fid = $(this).data('id');
+            let $plr = $('#plr');
             $popup.show().fullScreen(true);
             $container.html(cls.setYohoho(fid));
-            runKinoplayertop();
-            setTimeout(()=>{
-                $('#kinoplayertop').attr('style', '');
-            },200)
+            if($plr.val() == 2){
+                runKinoplayertop();
+                setTimeout(()=>{
+                    $('#kinoplayertop').attr('style', '');
+                },200)
+            }
         })
         $(document).find('.close-b').unbind();
         $(document).on('click', '.close-b', ()=>{
@@ -154,13 +158,17 @@ class OnlineTV{
     }
 
     setYohoho(id){
-        // return `
-        //     <div id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}"></div>
-        //     <script src="//yohoho.cc/yo.js"></script>
-        //     `;
-        return `
-            <div id="kinoplayertop" data-classname="yohoho-class" data-kinopoisk="${id}"></div>
-        `;
+        let $plr = $('#plr');
+        if($plr.val() == 2){
+            return `
+                <div id="kinoplayertop" data-classname="yohoho-class" data-kinopoisk="${id}"></div>
+            `;
+        } else {
+            return `
+            <div id="yohoho" data-resize="1" data-tv="1" data-autoplay="1" data-kinopoisk="${id}"></div>
+            <script src="//yohoho.cc/yo.js"></script>
+            `;
+        }
     }
 
     searchByName(){
