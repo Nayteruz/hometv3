@@ -152,6 +152,10 @@ img {
     .item-film .options li.name {
       font-weight: bold;
       font-size: 18px; }
+      @media all and (max-width: 1024px) {
+        .item-film .options li.name {
+          font-size: 15px;
+          line-height: 1; } }
       @media all and (max-width: 768px) {
         .item-film .options li.name {
           font-size: 12px; } }
